@@ -9,7 +9,7 @@ ini_set('max_input_time', -1);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kaminoa Uploader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -17,35 +17,79 @@ ini_set('max_input_time', -1);
             padding: 0;
         }
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'EB Garamond', serif;
+            background: #2b2520;
+            background-image:
+                radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.06) 0, transparent 55%),
+                linear-gradient(135deg, #3a312a 0%, #1f1b17 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #333;
+            color: #f3e9cf;
             padding: 20px;
         }
         .container {
-            background: rgba(255, 255, 255, 0.95);
+            position: relative;
             width: 100%;
-            max-width: 450px;
-            padding: 40px 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 460px;
+            padding: 52px 42px 52px 50px;
             text-align: center;
-            backdrop-filter: blur(10px);
+            color: #f3e9cf;
+            /* Sampul buku: kain hijau-teal tua dengan tekstur tenun halus */
+            background:
+                repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 3px),
+                repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 3px),
+                linear-gradient(135deg, #2a6f6a 0%, #1d4f4b 60%, #163d3a 100%);
+            border-radius: 3px 12px 12px 3px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        /* Punggung buku (spine) di tepi kiri */
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 16px;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.05));
+            border-right: 1px solid rgba(232, 200, 122, 0.3);
+        }
+        /* Bingkai garis emas ganda (debossed) */
+        .container::after {
+            content: "";
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            bottom: 16px;
+            left: 30px;
+            border: 1px solid rgba(232, 200, 122, 0.55);
+            box-shadow: inset 0 0 0 3px rgba(232, 200, 122, 0.16);
+            border-radius: 3px;
+            pointer-events: none;
+        }
+        /* Pastikan isi tampil di atas bingkai */
+        .container > * {
+            position: relative;
+            z-index: 1;
         }
         h2 {
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 24px;
+            margin-bottom: 8px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            font-size: 40px;
+            line-height: 1.15;
+            letter-spacing: 0.5px;
+            color: #e8c87a;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55), 0 0 16px rgba(232, 200, 122, 0.25);
         }
         p.subtitle {
-            color: #718096;
+            font-family: 'EB Garamond', serif;
+            font-style: italic;
+            color: #cdbf97;
             margin-bottom: 30px;
-            font-size: 14px;
+            font-size: 18px;
         }
         .file-upload-wrapper {
             position: relative;
@@ -61,73 +105,98 @@ ini_set('max_input_time', -1);
             cursor: pointer;
         }
         .file-upload-box {
-            border: 2px dashed #cbd5e0;
-            border-radius: 12px;
+            border: 2px dashed rgba(232, 200, 122, 0.5);
+            border-radius: 10px;
             padding: 40px 20px;
-            background: #f7fafc;
+            background: rgba(255, 255, 255, 0.06);
             transition: all 0.3s ease;
         }
         .file-upload-wrapper:hover .file-upload-box {
-            border-color: #667eea;
-            background: #ebf4ff;
+            border-color: #e8c87a;
+            background: rgba(232, 200, 122, 0.12);
         }
         .file-upload-box svg {
             width: 48px;
             height: 48px;
-            fill: #a0aec0;
+            fill: rgba(232, 200, 122, 0.7);
             margin-bottom: 10px;
             transition: fill 0.3s ease;
         }
         .file-upload-wrapper:hover .file-upload-box svg {
-            fill: #667eea;
+            fill: #e8c87a;
         }
         .file-upload-box span {
             display: block;
-            color: #4a5568;
+            color: #f3e9cf;
             font-weight: 600;
+            font-size: 18px;
         }
         .file-upload-box small {
-            color: #a0aec0;
-            font-size: 12px;
+            color: #b8ad88;
+            font-size: 13px;
             margin-top: 5px;
             display: block;
         }
         button {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #f1d589 0%, #d9b65f 50%, #c69d48 100%);
+            color: #163d3a;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-family: 'EB Garamond', serif;
+            font-size: 20px;
+            letter-spacing: 0.5px;
             font-weight: 600;
             cursor: pointer;
+            box-shadow: 0 3px 0 #a8842f;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
         button:active {
             transform: translateY(0);
         }
         .message {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 14px;
+            position: relative;
+            margin-top: 26px;
+            padding: 18px 20px;
+            border-radius: 4px;
+            font-family: 'EB Garamond', serif;
+            font-size: 18px;
+            line-height: 1.5;
             text-align: left;
+            box-shadow: 3px 5px 12px rgba(0, 0, 0, 0.18);
+            transform: rotate(-1.2deg);
             animation: fadeIn 0.5s ease;
         }
+        /* Selotip di tengah atas memo */
+        .message::before {
+            content: "";
+            position: absolute;
+            top: -11px;
+            left: 50%;
+            transform: translateX(-50%) rotate(2deg);
+            width: 80px;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px dashed rgba(0, 0, 0, 0.12);
+        }
+        .message strong {
+            font-size: 19px;
+        }
         .success {
-            background-color: #c6f6d5;
-            color: #22543d;
-            border-left: 4px solid #48bb78;
+            background-color: #d7f5c2;
+            color: #2f6b1f;
+            border-left: 5px solid #5fb83d;
         }
         .error {
-            background-color: #fed7d7;
-            color: #742a2a;
-            border-left: 4px solid #f56565;
+            background-color: #ffd6d6;
+            color: #9b2c2c;
+            border-left: 5px solid #f56565;
+            transform: rotate(1.2deg);
         }
         .btn-link {
             display: inline-block;
@@ -137,8 +206,9 @@ ini_set('max_input_time', -1);
             color: white;
             text-decoration: none;
             border-radius: 6px;
+            font-family: 'EB Garamond', serif;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 17px;
             transition: background 0.3s;
         }
         .btn-link:hover {
@@ -149,8 +219,8 @@ ini_set('max_input_time', -1);
             to { opacity: 1; transform: translateY(0); }
         }
         #file-name {
-            font-size: 14px;
-            color: #4a5568;
+            font-size: 16px;
+            color: #e8c87a;
             font-weight: 600;
             word-break: break-all;
             margin-bottom: 15px;
@@ -179,8 +249,9 @@ ini_set('max_input_time', -1);
             padding: 15px;
             border-radius: 8px;
             color: #4c51bf;
+            font-family: 'EB Garamond', serif;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 16px;
             margin-top: 10px;
             flex-direction: column;
             align-items: center;
@@ -203,9 +274,10 @@ ini_set('max_input_time', -1);
             width: 100%;
         }
         .duration-title {
-            font-size: 14px;
+            font-family: 'EB Garamond', serif;
+            font-size: 18px;
             font-weight: 600;
-            color: #4a5568;
+            color: #cdbf97;
             margin-bottom: 10px;
             text-align: left;
         }
@@ -228,28 +300,28 @@ ini_set('max_input_time', -1);
             flex-direction: column;
             align-items: center;
             padding: 15px 10px;
-            background: #f7fafc;
-            border: 2px solid #cbd5e0;
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(232, 200, 122, 0.35);
             border-radius: 10px;
             transition: all 0.3s ease;
         }
         .radio-card span.title {
             font-weight: 600;
-            color: #2d3748;
-            font-size: 14px;
+            color: #f3e9cf;
+            font-size: 16px;
             margin-bottom: 4px;
         }
         .radio-card span.desc {
-            font-size: 11px;
-            color: #718096;
+            font-size: 13px;
+            color: #b8ad88;
         }
         .upload-type input[type="radio"]:checked + .radio-card {
-            border-color: #667eea;
-            background: #ebf4ff;
-            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.2);
+            border-color: #e8c87a;
+            background: rgba(232, 200, 122, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
         .upload-type input[type="radio"]:checked + .radio-card span.title {
-            color: #4c51bf;
+            color: #f6e6b8;
         }
     </style>
 </head>
