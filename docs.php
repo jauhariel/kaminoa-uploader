@@ -221,6 +221,33 @@ const res = await fetch('<?php echo htmlspecialchars($api_url); ?>', {
 const data = await res.json();
 console.log(data.url);</code></pre>
 
+        <h2>Contoh — Python (requests)</h2>
+        <pre><code>import requests
+
+with open('file.jpg', 'rb') as f:
+    res = requests.post(
+        '<?php echo htmlspecialchars($api_url); ?>',
+        files={'file': f},
+        data={'upload_type': 'temporary'},
+    )
+
+print(res.json()['url'])</code></pre>
+
+        <h2>Contoh — PHP (cURL)</h2>
+        <pre><code>&lt;?php
+$ch = curl_init('<?php echo htmlspecialchars($api_url); ?>');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, [
+    'file'        =&gt; new CURLFile('file.jpg'),
+    'upload_type' =&gt; 'temporary',
+]);
+
+$data = json_decode(curl_exec($ch), true);
+curl_close($ch);
+
+echo $data['url'];</code></pre>
+
         <h2>Respons Berhasil (200)</h2>
         <pre><code>{
   "success": true,

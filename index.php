@@ -323,27 +323,6 @@ ini_set('max_input_time', -1);
         .upload-type input[type="radio"]:checked + .radio-card span.title {
             color: #f6e6b8;
         }
-        .api-note {
-            margin-top: 24px;
-            padding-top: 18px;
-            border-top: 1px solid rgba(232, 200, 122, 0.25);
-            font-family: 'EB Garamond', serif;
-            font-style: italic;
-            font-size: 16px;
-            color: #b8ad88;
-        }
-        .api-note a {
-            font-style: normal;
-            font-weight: 600;
-            color: #e8c87a;
-            text-decoration: none;
-            border-bottom: 1px dotted rgba(232, 200, 122, 0.6);
-            transition: color 0.2s ease, border-color 0.2s ease;
-        }
-        .api-note a:hover {
-            color: #f6e6b8;
-            border-color: #f6e6b8;
-        }
         .faq {
             margin-top: 26px;
             padding-top: 20px;
@@ -535,8 +514,6 @@ ini_set('max_input_time', -1);
         }
     }
     ?>
-
-    <p class="api-note">Mau unggah lewat kode? Tersedia juga <a href="docs.php">API &amp; dokumentasinya →</a></p>
 
     <div class="faq">
         <h3 class="faq-title">Pertanyaan Umum</h3>
