@@ -323,6 +323,27 @@ ini_set('max_input_time', -1);
         .upload-type input[type="radio"]:checked + .radio-card span.title {
             color: #f6e6b8;
         }
+        .api-note {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(232, 200, 122, 0.25);
+            font-family: 'EB Garamond', serif;
+            font-style: italic;
+            font-size: 16px;
+            color: #b8ad88;
+        }
+        .api-note a {
+            font-style: normal;
+            font-weight: 600;
+            color: #e8c87a;
+            text-decoration: none;
+            border-bottom: 1px dotted rgba(232, 200, 122, 0.6);
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+        .api-note a:hover {
+            color: #f6e6b8;
+            border-color: #f6e6b8;
+        }
     </style>
 </head>
 <body>
@@ -336,7 +357,7 @@ ini_set('max_input_time', -1);
             <div class="file-upload-box">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
                 <span>Klik atau Seret File ke Sini</span>
-                <small>Maksimal ukuran file: 150MB</small>
+                <small>Maksimal ukuran file: 50MB</small>
             </div>
             <input type="file" name="fileToUpload" id="fileToUpload" onchange="document.getElementById('file-name').textContent = this.files[0] ? 'File terpilih: ' + this.files[0].name : ''">
         </div>
@@ -433,9 +454,9 @@ ini_set('max_input_time', -1);
                 $uploadOk = 0;
             }
 
-            // Check file size (limit to 150MB)
-            if ($_FILES["fileToUpload"]["size"] > 150000000) {
-                echo "<div class='message error'><strong>Maaf!</strong> Ukuran file terlalu besar. Maksimal 150MB.</div>";
+            // Check file size (limit to 50MB)
+            if ($_FILES["fileToUpload"]["size"] > 50000000) {
+                echo "<div class='message error'><strong>Maaf!</strong> Ukuran file terlalu besar. Maksimal 50MB.</div>";
                 $uploadOk = 0;
             }
 
@@ -458,9 +479,18 @@ ini_set('max_input_time', -1);
         }
     }
     ?>
+
+    <p class="api-note">Mau unggah lewat kode? Tersedia juga <a href="docs.php">API &amp; dokumentasinya →</a></p>
 </div>
 
 <script>
+    function scrollToMessage() {
+        var el = document.querySelector('.message');
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
     document.querySelector('form').addEventListener('submit', function(e) {
         var fileInput = document.getElementById('fileToUpload');
         if (fileInput.files.length === 0) return;
@@ -476,6 +506,8 @@ ini_set('max_input_time', -1);
         submitBtn.style.display = 'none';
         loadingContainer.style.display = 'flex';
         messageContainer.innerHTML = '';
+        // Hapus juga pesan lama yang dirender PHP (di luar message-container) agar tidak nyangkut.
+        document.querySelectorAll('.message').forEach(function(el) { el.remove(); });
         progressText.textContent = 'Sedang mengunggah... 0%';
         progressBar.style.width = '0%';
         
@@ -501,30 +533,36 @@ ini_set('max_input_time', -1);
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(xhr.responseText, 'text/html');
                 var message = doc.querySelector('.message');
-                
+
                 if (message) {
                     messageContainer.innerHTML = message.outerHTML;
                 }
-                
+
                 submitBtn.style.display = 'block';
                 loadingContainer.style.display = 'none';
                 fileInput.value = '';
                 document.getElementById('file-name').textContent = '';
+                scrollToMessage();
             } else {
                 messageContainer.innerHTML = "<div class='message error'><strong>Error!</strong> Terjadi kesalahan koneksi ke server.</div>";
                 submitBtn.style.display = 'block';
                 loadingContainer.style.display = 'none';
+                scrollToMessage();
             }
         };
-        
+
         xhr.onerror = function() {
             messageContainer.innerHTML = "<div class='message error'><strong>Error!</strong> Terjadi kesalahan koneksi.</div>";
             submitBtn.style.display = 'block';
             loadingContainer.style.display = 'none';
+            scrollToMessage();
         };
         
         xhr.send(formData);
     });
+
+    // Jika pesan sudah ada saat halaman dimuat (submit non-AJAX), langsung scroll ke sana.
+    window.addEventListener('load', scrollToMessage);
 </script>
 </body>
 </html>

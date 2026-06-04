@@ -1,0 +1,245 @@
+<?php
+// Susun base URL absolut supaya contoh di docs bisa langsung dipakai.
+$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$base = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+$api_url = $scheme . '://' . $host . $base . '/api.php';
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Docs | Kaminoa Uploader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'EB Garamond', serif;
+            background: #2b2520;
+            background-image:
+                radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.06) 0, transparent 55%),
+                linear-gradient(135deg, #3a312a 0%, #1f1b17 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            color: #f3e9cf;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 680px;
+            padding: 52px 42px 52px 50px;
+            color: #f3e9cf;
+            background:
+                repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 3px),
+                repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 3px),
+                linear-gradient(135deg, #2a6f6a 0%, #1d4f4b 60%, #163d3a 100%);
+            border-radius: 3px 12px 12px 3px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 16px;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.05));
+            border-right: 1px solid rgba(232, 200, 122, 0.3);
+        }
+        .container > * {
+            position: relative;
+            z-index: 1;
+        }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            font-size: 38px;
+            line-height: 1.15;
+            color: #e8c87a;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55), 0 0 16px rgba(232, 200, 122, 0.25);
+            margin-bottom: 6px;
+        }
+        p.subtitle {
+            font-style: italic;
+            color: #cdbf97;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 22px;
+            color: #f6e6b8;
+            margin: 30px 0 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(232, 200, 122, 0.3);
+        }
+        p, li {
+            font-size: 17px;
+            line-height: 1.6;
+            color: #e8dec3;
+        }
+        ul {
+            padding-left: 22px;
+            margin: 10px 0;
+        }
+        li { margin-bottom: 6px; }
+        .endpoint {
+            display: block;
+            background: rgba(232, 200, 122, 0.15);
+            border: 1px solid rgba(232, 200, 122, 0.4);
+            border-radius: 6px;
+            padding: 6px 12px;
+            margin: 8px 0;
+            font-family: 'Inter', monospace;
+            font-size: 15px;
+            color: #f6e6b8;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .method {
+            font-weight: 600;
+            color: #163d3a;
+            background: #e8c87a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(232, 200, 122, 0.2);
+            border-radius: 8px;
+            padding: 16px 18px;
+            overflow-x: auto;
+            margin: 12px 0;
+            max-width: 100%;
+        }
+        pre code {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        code {
+            font-family: 'Inter', 'Courier New', monospace;
+            font-size: 14px;
+            color: #f3e9cf;
+            line-height: 1.5;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 15px;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(232, 200, 122, 0.18);
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        th {
+            color: #e8c87a;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        td code {
+            color: #f6e6b8;
+            font-size: 14px;
+        }
+        .btn-home {
+            display: inline-block;
+            margin-top: 34px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #f1d589 0%, #d9b65f 50%, #c69d48 100%);
+            color: #163d3a;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 3px 0 #a8842f;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+        @media (max-width: 520px) {
+            body { padding: 20px 12px; }
+            .container { padding: 36px 20px 36px 28px; }
+            h1 { font-size: 30px; }
+            pre { padding: 12px 14px; }
+            code { font-size: 13px; }
+            table { font-size: 14px; }
+            th, td { padding: 6px 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API Documentation</h1>
+        <p class="subtitle">Unggah file ke Kaminoa Uploader lewat API</p>
+
+        <h2>Endpoint</h2>
+        <div class="endpoint"><span class="method">POST</span><?php echo htmlspecialchars($api_url); ?></div>
+        <p>Kirim request dengan <code>Content-Type: multipart/form-data</code>.</p>
+
+        <h2>Parameter</h2>
+        <table>
+            <tr><th>Field</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+            <tr><td><code>file</code></td><td>file</td><td>Ya</td><td>File yang ingin diunggah (maks. 50MB).</td></tr>
+            <tr><td><code>upload_type</code></td><td>text</td><td>Tidak</td><td><code>temporary</code> (default, dihapus dalam 1 jam) atau <code>permanent</code>.</td></tr>
+        </table>
+
+        <h2>Contoh — cURL</h2>
+        <pre><code>curl -X POST <?php echo htmlspecialchars($api_url); ?> \
+  -F "file=@/path/ke/file.jpg" \
+  -F "upload_type=temporary"</code></pre>
+
+        <h2>Contoh — JavaScript (fetch)</h2>
+        <pre><code>const form = new FormData();
+form.append('file', fileInput.files[0]);
+form.append('upload_type', 'permanent');
+
+const res = await fetch('<?php echo htmlspecialchars($api_url); ?>', {
+  method: 'POST',
+  body: form,
+});
+const data = await res.json();
+console.log(data.url);</code></pre>
+
+        <h2>Respons Berhasil (200)</h2>
+        <pre><code>{
+  "success": true,
+  "message": "File berhasil diunggah.",
+  "filename": "a1b2c3d4.jpg",
+  "url": "<?php echo htmlspecialchars($scheme . '://' . $host . $base); ?>/uploads/a1b2c3d4.jpg",
+  "size": 78745,
+  "type": "permanent",
+  "expires_in": null
+}</code></pre>
+
+        <h2>Respons Gagal</h2>
+        <pre><code>{
+  "success": false,
+  "error": "Ukuran file terlalu besar. Maksimal 50MB."
+}</code></pre>
+        <p>Kode status yang mungkin: <code>400</code> (request salah), <code>405</code> (metode bukan POST), <code>413</code> (file terlalu besar), <code>500</code> (gagal simpan).</p>
+
+        <a href="/" class="btn-home">← Kembali ke Beranda</a>
+    </div>
+</body>
+</html>

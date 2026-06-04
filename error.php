@@ -15,7 +15,7 @@ $errors = [
     413 => [
         'emoji' => '📦',
         'title' => 'File Terlalu Besar',
-        'desc'  => 'Ukuran file melebihi batas maksimal 150MB. Silakan pilih file yang lebih kecil.',
+        'desc'  => 'Ukuran file melebihi batas maksimal 50MB. Silakan pilih file yang lebih kecil.',
     ],
     500 => [
         'emoji' => '⚙️',
