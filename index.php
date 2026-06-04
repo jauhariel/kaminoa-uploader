@@ -344,6 +344,62 @@ ini_set('max_input_time', -1);
             color: #f6e6b8;
             border-color: #f6e6b8;
         }
+        .faq {
+            margin-top: 26px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(232, 200, 122, 0.25);
+            text-align: left;
+        }
+        .faq-title {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 22px;
+            color: #e8c87a;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+        .faq details {
+            border-bottom: 1px solid rgba(232, 200, 122, 0.18);
+            padding: 4px 0;
+        }
+        .faq summary {
+            cursor: pointer;
+            list-style: none;
+            padding: 10px 28px 10px 4px;
+            position: relative;
+            font-size: 18px;
+            font-weight: 600;
+            color: #f3e9cf;
+            transition: color 0.2s ease;
+        }
+        .faq summary::-webkit-details-marker { display: none; }
+        .faq summary:hover { color: #f6e6b8; }
+        /* Tanda + yang berubah jadi × saat terbuka */
+        .faq summary::after {
+            content: "+";
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 22px;
+            color: #e8c87a;
+            transition: transform 0.2s ease;
+        }
+        .faq details[open] summary::after {
+            content: "×";
+        }
+        .faq details p {
+            padding: 0 4px 12px;
+            font-size: 16px;
+            line-height: 1.55;
+            color: #cdbf97;
+        }
+        .faq details p a {
+            color: #e8c87a;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px dotted rgba(232, 200, 122, 0.6);
+        }
     </style>
 </head>
 <body>
@@ -481,6 +537,34 @@ ini_set('max_input_time', -1);
     ?>
 
     <p class="api-note">Mau unggah lewat kode? Tersedia juga <a href="docs.php">API &amp; dokumentasinya →</a></p>
+
+    <div class="faq">
+        <h3 class="faq-title">Pertanyaan Umum</h3>
+        <details>
+            <summary>Apa itu Kaminoa Uploader?</summary>
+            <p>Kaminoa Uploader adalah layanan unggah file sederhana untuk berbagi file dengan cepat. Pilih file, tentukan durasinya, lalu dapatkan tautan untuk dibagikan.</p>
+        </details>
+        <details>
+            <summary>Berapa lama file saya disimpan?</summary>
+            <p>File <strong>Sementara</strong> dihapus otomatis dalam 1 jam. File <strong>Permanen</strong> disimpan selama mungkin tanpa batas waktu.</p>
+        </details>
+        <details>
+            <summary>Berapa ukuran file maksimal?</summary>
+            <p>Maksimal 50MB per file. File yang lebih besar dari itu akan ditolak.</p>
+        </details>
+        <details>
+            <summary>Apakah nama file asli saya tetap dipakai?</summary>
+            <p>Tidak. Nama file diganti dengan 8 karakter acak demi privasi dan kerapian, tapi ekstensinya tetap dipertahankan.</p>
+        </details>
+        <details>
+            <summary>Apakah ada batasan jenis file?</summary>
+            <p>Tidak ada batasan jenis file. Gambar dan video bisa langsung dibuka di browser, file lain otomatis diunduh.</p>
+        </details>
+        <details>
+            <summary>Bisakah saya mengunggah lewat kode/program?</summary>
+            <p>Bisa. Lihat <a href="docs.php">halaman API &amp; dokumentasi</a> untuk contoh cURL dan JavaScript.</p>
+        </details>
+    </div>
 </div>
 
 <script>
