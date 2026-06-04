@@ -326,10 +326,13 @@ ini_set('max_input_time', -1);
             }
         }
 
-        $original_name = pathinfo($_FILES["fileToUpload"]["name"], PATHINFO_FILENAME);
         $extension = pathinfo($_FILES["fileToUpload"]["name"], PATHINFO_EXTENSION);
-        $new_filename = $original_name . '_' . time() . '.' . $extension;
-        $target_file = $target_dir . $new_filename;
+        // Nama file dipendekkan jadi 8 karakter acak (cegah nama asli yang terlalu panjang).
+        // Diulang kalau kebetulan sudah ada, supaya tetap unik.
+        do {
+            $new_filename = bin2hex(random_bytes(4)) . ($extension ? '.' . $extension : '');
+            $target_file = $target_dir . $new_filename;
+        } while (file_exists($target_file));
         $uploadOk = 1;
         $fileType = strtolower($extension);
 
