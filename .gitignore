@@ -1,0 +1,8 @@
+# File yang diupload user — jangan ikut ke repo
+uploads/*
+uploads/temp/*
+
+# Tapi tetap simpan struktur foldernya
+!uploads/.gitkeep
+!uploads/temp/
+!uploads/temp/.gitkeep
