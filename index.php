@@ -545,6 +545,9 @@ ini_set('max_input_time', -1);
 </div>
 
 <script>
+    // Batas ukuran file, harus sama dengan pengecekan di PHP (50MB).
+    var MAX_FILE_SIZE = 50000000;
+
     function scrollToMessage() {
         var el = document.querySelector('.message');
         if (el) {
@@ -552,17 +555,39 @@ ini_set('max_input_time', -1);
         }
     }
 
+    function showError(msg) {
+        document.getElementById('message-container').innerHTML =
+            "<div class='message error'><strong>Maaf!</strong> " + msg + "</div>";
+        scrollToMessage();
+    }
+
     // Bersihkan pesan sukses/error lama begitu user memilih file baru,
     // baik pesan dari AJAX (#message-container) maupun pesan render PHP (.message).
     document.getElementById('fileToUpload').addEventListener('change', function() {
         document.getElementById('message-container').innerHTML = '';
         document.querySelectorAll('.message').forEach(function(el) { el.remove(); });
+
+        // Validasi ukuran langsung saat file dipilih, tanpa perlu upload dulu.
+        if (this.files[0] && this.files[0].size > MAX_FILE_SIZE) {
+            this.value = '';
+            document.getElementById('file-name').textContent = '';
+            showError('Ukuran file terlalu besar. Maksimal 50MB.');
+        }
     });
 
     document.querySelector('form').addEventListener('submit', function(e) {
         var fileInput = document.getElementById('fileToUpload');
         if (fileInput.files.length === 0) return;
-        
+
+        // Cegah upload kalau file melebihi batas (pengaman kedua selain saat memilih).
+        if (fileInput.files[0].size > MAX_FILE_SIZE) {
+            e.preventDefault();
+            fileInput.value = '';
+            document.getElementById('file-name').textContent = '';
+            showError('Ukuran file terlalu besar. Maksimal 50MB.');
+            return;
+        }
+
         e.preventDefault();
         
         var submitBtn = document.getElementById('submit-btn');
