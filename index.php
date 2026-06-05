@@ -552,6 +552,13 @@ ini_set('max_input_time', -1);
         }
     }
 
+    // Bersihkan pesan sukses/error lama begitu user memilih file baru,
+    // baik pesan dari AJAX (#message-container) maupun pesan render PHP (.message).
+    document.getElementById('fileToUpload').addEventListener('change', function() {
+        document.getElementById('message-container').innerHTML = '';
+        document.querySelectorAll('.message').forEach(function(el) { el.remove(); });
+    });
+
     document.querySelector('form').addEventListener('submit', function(e) {
         var fileInput = document.getElementById('fileToUpload');
         if (fileInput.files.length === 0) return;
