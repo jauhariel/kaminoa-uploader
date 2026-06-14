@@ -1,3 +1,6 @@
+# Dependency Node.js
+node_modules/
+
 # File yang diupload user — jangan ikut ke repo
 uploads/*
 uploads/temp/*

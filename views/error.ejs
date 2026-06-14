@@ -1,41 +1,9 @@
-<?php
-$code = isset($_GET['code']) ? (int) $_GET['code'] : 404;
-
-$errors = [
-    403 => [
-        'emoji' => '🔒',
-        'title' => 'Akses Ditolak',
-        'desc'  => 'Kamu tidak punya izin untuk membuka direktori ini. Isinya bersifat privat.',
-    ],
-    404 => [
-        'emoji' => '🧭',
-        'title' => 'Halaman Tidak Ditemukan',
-        'desc'  => 'Halaman yang kamu cari tidak ada atau mungkin sudah dipindahkan.',
-    ],
-    413 => [
-        'emoji' => '📦',
-        'title' => 'File Terlalu Besar',
-        'desc'  => 'Ukuran file melebihi batas maksimal 50MB. Silakan pilih file yang lebih kecil.',
-    ],
-    500 => [
-        'emoji' => '⚙️',
-        'title' => 'Kesalahan Server',
-        'desc'  => 'Terjadi kesalahan di sisi server. Coba lagi beberapa saat lagi.',
-    ],
-];
-
-if (!isset($errors[$code])) {
-    $code = 404;
-}
-$e = $errors[$code];
-http_response_code($code);
-?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $code . ' — ' . htmlspecialchars($e['title']); ?> | Kaminoa Uploader</title>
+    <title><%= code %> — <%= title %> | Kaminoa Uploader</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
         * {
@@ -159,10 +127,10 @@ http_response_code($code);
 </head>
 <body>
     <div class="container">
-        <div class="emoji"><?php echo $e['emoji']; ?></div>
-        <div class="code"><?php echo $code; ?></div>
-        <h1><?php echo htmlspecialchars($e['title']); ?></h1>
-        <p><?php echo htmlspecialchars($e['desc']); ?></p>
+        <div class="emoji"><%= emoji %></div>
+        <div class="code"><%= code %></div>
+        <h1><%= title %></h1>
+        <p><%= desc %></p>
         <a href="/" class="btn-home">← Kembali ke Beranda</a>
     </div>
 </body>
