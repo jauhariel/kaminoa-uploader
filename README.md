@@ -1,7 +1,7 @@
 # Kaminoa Uploader
 
-Layanan unggah file sederhana. Pilih file, tentukan durasinya (permanen / sementara 1 jam),
-lalu dapatkan tautan untuk dibagikan. Versi Node.js (Fastify + EJS).
+Layanan unggah file sederhana. Pilih file, unggah, lalu dapatkan tautan untuk dibagikan.
+Semua file bersifat sementara dan dihapus otomatis dalam 1 jam. Versi Node.js (Fastify + EJS).
 
 ## Menjalankan
 
@@ -30,12 +30,12 @@ Variabel lingkungan opsional: `PORT` (default `5264`), `HOST` (default `0.0.0.0`
 `POST /api` dengan `Content-Type: multipart/form-data`:
 
 - `file` — file yang diunggah (wajib, maks. 50MB)
-- `upload_type` — `temporary` (default, dihapus dalam 1 jam) atau `permanent`
+
+Semua unggahan bersifat sementara dan dihapus otomatis dalam 1 jam.
 
 ```bash
 curl -X POST http://localhost:5264/api \
-  -F "file=@/path/ke/file.jpg" \
-  -F "upload_type=temporary"
+  -F "file=@/path/ke/file.jpg"
 ```
 
 Respons sukses:
@@ -63,5 +63,5 @@ Respons sukses:
 server.js        — server Fastify, routing, handler error
 lib/storage.js   — logika simpan file, penamaan acak, cleanup, validasi
 views/           — template EJS (index, docs, error)
-uploads/         — file permanen; uploads/temp/ untuk file sementara
+uploads/temp/    — file sementara (semua unggahan), dihapus otomatis tiap > 1 jam
 ```

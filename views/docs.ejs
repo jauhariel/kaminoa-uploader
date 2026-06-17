@@ -191,21 +191,19 @@
         <p>Kirim request dengan <code>Content-Type: multipart/form-data</code>.</p>
 
         <h2>Parameter</h2>
+        <p>Semua file bersifat sementara dan dihapus otomatis dalam 1 jam.</p>
         <table>
             <tr><th>Field</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
             <tr><td><code>file</code></td><td>file</td><td>Ya</td><td>File yang ingin diunggah (maks. 50MB).</td></tr>
-            <tr><td><code>upload_type</code></td><td>text</td><td>Tidak</td><td><code>temporary</code> (default, dihapus dalam 1 jam) atau <code>permanent</code>.</td></tr>
         </table>
 
         <h2>Contoh — cURL</h2>
         <pre><code>curl -X POST <%= apiUrl %> \
-  -F "file=@/path/ke/file.jpg" \
-  -F "upload_type=temporary"</code></pre>
+  -F "file=@/path/ke/file.jpg"</code></pre>
 
         <h2>Contoh — JavaScript (fetch)</h2>
         <pre><code>const form = new FormData();
 form.append('file', fileInput.files[0]);
-form.append('upload_type', 'permanent');
 
 const res = await fetch('<%= apiUrl %>', {
   method: 'POST',
@@ -221,7 +219,6 @@ with open('file.jpg', 'rb') as f:
     res = requests.post(
         '<%= apiUrl %>',
         files={'file': f},
-        data={'upload_type': 'temporary'},
     )
 
 print(res.json()['url'])</code></pre>
@@ -231,7 +228,6 @@ print(res.json()['url'])</code></pre>
 
 const form = new FormData();
 form.append('file', await openAsBlob('file.jpg'), 'file.jpg');
-form.append('upload_type', 'temporary');
 
 const res = await fetch('<%= apiUrl %>', { method: 'POST', body: form });
 const data = await res.json();
@@ -242,9 +238,9 @@ console.log(data.url);</code></pre>
   "success": true,
   "message": "File berhasil diunggah.",
   "filename": "a1b2c3d4.jpg",
-  "url": "<%= apiUrl.replace(/\/api$/, '') %>/uploads/a1b2c3d4.jpg",
-  "type": "permanent",
-  "expires_in": null
+  "url": "<%= apiUrl.replace(/\/api$/, '') %>/uploads/temp/a1b2c3d4.jpg",
+  "type": "temporary",
+  "expires_in": 3600
 }</code></pre>
 
         <h2>Respons Gagal</h2>

@@ -268,55 +268,17 @@
         #message-container {
             width: 100%;
         }
-        .duration-title {
+        .duration-note {
             font-family: 'EB Garamond', serif;
-            font-size: 18px;
-            font-weight: 600;
-            color: #cdbf97;
-            margin-bottom: 10px;
-            text-align: left;
-        }
-        .upload-type {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .upload-type label {
-            flex: 1;
-            position: relative;
-            cursor: pointer;
-        }
-        .upload-type input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-        }
-        .radio-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px 10px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 2px solid rgba(232, 200, 122, 0.35);
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-        .radio-card span.title {
-            font-weight: 600;
-            color: #f3e9cf;
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-        .radio-card span.desc {
-            font-size: 13px;
+            font-style: italic;
+            font-size: 15px;
             color: #b8ad88;
+            margin-bottom: 20px;
+            text-align: center;
         }
-        .upload-type input[type="radio"]:checked + .radio-card {
-            border-color: #e8c87a;
-            background: rgba(232, 200, 122, 0.15);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-        .upload-type input[type="radio"]:checked + .radio-card span.title {
-            color: #f6e6b8;
+        .duration-note strong {
+            color: #e8c87a;
+            font-style: normal;
         }
         .faq {
             margin-top: 26px;
@@ -380,7 +342,7 @@
 
 <div class="container">
     <h2>Kaminoa Uploader</h2>
-    <p class="subtitle">Pilih file yang ingin Anda unggah ke server</p>
+    <p class="subtitle">Unggah file sementara — dihapus otomatis dalam 1 jam</p>
 
     <form action="" method="post" enctype="multipart/form-data">
         <div class="file-upload-wrapper">
@@ -392,23 +354,7 @@
             <input type="file" name="fileToUpload" id="fileToUpload" onchange="document.getElementById('file-name').textContent = this.files[0] ? 'File terpilih: ' + this.files[0].name : ''">
         </div>
         <div id="file-name"></div>
-        <div class="duration-title">Pilih Durasi File:</div>
-        <div class="upload-type">
-            <label>
-                <input type="radio" name="upload_type" value="permanent">
-                <div class="radio-card">
-                    <span class="title">Permanen</span>
-                    <span class="desc">Disimpan selamanya</span>
-                </div>
-            </label>
-            <label>
-                <input type="radio" name="upload_type" value="temporary" checked>
-                <div class="radio-card">
-                    <span class="title">Sementara</span>
-                    <span class="desc">Dihapus dalam 1 jam</span>
-                </div>
-            </label>
-        </div>
+        <p class="duration-note">Semua file bersifat <strong>sementara</strong> dan dihapus otomatis dalam 1 jam.</p>
         <button type="submit" name="submit" id="submit-btn">Unggah File</button>
         <div id="loading-container">
             <div style="display: flex; align-items: center;">
@@ -430,11 +376,11 @@
         <h3 class="faq-title">Pertanyaan Umum</h3>
         <details>
             <summary>Apa itu Kaminoa Uploader?</summary>
-            <p>Kaminoa Uploader adalah layanan unggah file sederhana untuk berbagi file dengan cepat. Pilih file, tentukan durasinya, lalu dapatkan tautan untuk dibagikan.</p>
+            <p>Kaminoa Uploader adalah layanan unggah file sederhana untuk berbagi file dengan cepat. Pilih file, unggah, lalu dapatkan tautan untuk dibagikan.</p>
         </details>
         <details>
             <summary>Berapa lama file saya disimpan?</summary>
-            <p>File <strong>Sementara</strong> dihapus otomatis dalam 1 jam. File <strong>Permanen</strong> disimpan selama mungkin tanpa batas waktu.</p>
+            <p>Semua file bersifat <strong>sementara</strong> dan dihapus otomatis dalam 1 jam setelah diunggah.</p>
         </details>
         <details>
             <summary>Berapa ukuran file maksimal?</summary>

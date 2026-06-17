@@ -70,14 +70,11 @@ app.post('/', async (req, reply) => {
   try {
     const result = await handleUpload(req.parts());
     const downloadAttr = isMedia(result.ext) ? '' : 'download';
-    const tempMsg =
-      result.uploadType === 'temporary'
-        ? " <br><small style='color:#e53e3e;'>(File ini akan dihapus otomatis dalam 1 jam)</small>"
-        : '';
     message = {
       type: 'success',
       html:
-        `<strong>Berhasil!</strong> File ${result.name} telah diunggah.${tempMsg}<br>` +
+        `<strong>Berhasil!</strong> File ${result.name} telah diunggah.` +
+        " <br><small style='color:#e53e3e;'>(File ini akan dihapus otomatis dalam 1 jam)</small><br>" +
         `<a href='/${result.relative}' target='_blank' ${downloadAttr} class='btn-link'>Buka / Download File</a>`,
     };
   } catch (err) {
@@ -98,8 +95,8 @@ async function apiUpload(req, reply) {
       message: 'File berhasil diunggah.',
       filename: result.name,
       url: `${baseUrl(req)}/${result.relative}`,
-      type: result.uploadType,
-      expires_in: result.uploadType === 'temporary' ? 3600 : null,
+      type: 'temporary',
+      expires_in: 3600,
     });
   } catch (err) {
     const status = err instanceof UploadError ? err.status : 500;
