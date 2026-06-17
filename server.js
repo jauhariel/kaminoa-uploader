@@ -39,6 +39,16 @@ await app.register(fastifyStatic, {
   prefix: '/uploads/',
   index: false,
   list: false,
+  // File media (gambar/video) boleh tampil inline di browser; selain itu paksa
+  // download. Ini mencegah HTML/SVG di-render di origin kita (phishing/XSS) dan
+  // memastikan file seperti .html benar-benar ter-download, bukan jadi hosting.
+  setHeaders(res, filePath) {
+    const ext = path.extname(filePath).slice(1).toLowerCase();
+    if (!isMedia(ext)) {
+      res.setHeader('Content-Disposition', 'attachment');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+    }
+  },
 });
 
 // Susun base URL absolut dari request (pengganti dirname(SCRIPT_NAME) di PHP).
