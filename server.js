@@ -127,6 +127,32 @@ async function docs(req, reply) {
 app.get('/docs', docs);
 app.get('/docs.php', docs);
 
+// ---- SEO: robots.txt & sitemap.xml ----
+
+app.get('/robots.txt', async (req, reply) => {
+  const body =
+    'User-agent: *\n' +
+    'Allow: /$\n' +
+    'Allow: /docs\n' +
+    // File unggahan bersifat privat & sementara — jangan di-index.
+    'Disallow: /uploads/\n' +
+    'Disallow: /api\n' +
+    'Disallow: /error\n\n' +
+    `Sitemap: ${baseUrl(req)}/sitemap.xml\n`;
+  return reply.type('text/plain').send(body);
+});
+
+app.get('/sitemap.xml', async (req, reply) => {
+  const base = baseUrl(req);
+  const body =
+    '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    `  <url><loc>${base}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>\n` +
+    `  <url><loc>${base}/docs</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>\n` +
+    '</urlset>\n';
+  return reply.type('application/xml').send(body);
+});
+
 // ---- Halaman error ----
 
 const ERRORS = {
