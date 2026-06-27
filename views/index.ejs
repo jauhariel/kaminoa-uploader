@@ -357,6 +357,28 @@
             text-decoration: none;
             border-bottom: 1px dotted rgba(232, 200, 122, 0.6);
         }
+        .site-footer {
+            width: 100%;
+            max-width: 460px;
+            margin: 22px auto 0;
+            text-align: center;
+            font-family: 'EB Garamond', serif;
+            font-size: 15px;
+            color: #b8ad88;
+        }
+        .site-footer a {
+            color: #e8c87a;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px dotted rgba(232, 200, 122, 0.6);
+            transition: color 0.2s ease;
+        }
+        .site-footer a:hover {
+            color: #f6e6b8;
+        }
+        body {
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
@@ -421,6 +443,10 @@
         </details>
     </div>
 </div>
+
+<footer class="site-footer">
+    Uploader by <a href="https://kaminoater.top" target="_blank" rel="noopener">Kaminoa</a>
+</footer>
 
 <script>
     // Batas ukuran file, harus sama dengan pengecekan di server (50MB).
