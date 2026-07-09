@@ -9,3 +9,5 @@ uploads/temp/*
 !uploads/.gitkeep
 !uploads/temp/
 !uploads/temp/.gitkeep
+.env
+test.txt

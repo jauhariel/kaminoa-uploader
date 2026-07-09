@@ -11,7 +11,28 @@ npm start            # http://localhost:5264
 npm run dev          # mode watch (auto-restart saat file berubah)
 ```
 
-Variabel lingkungan opsional: `PORT` (default `5264`), `HOST` (default `0.0.0.0`).
+Variabel lingkungan dasar: `PORT` (default `5264`), `HOST` (default `0.0.0.0`).
+
+## Konfigurasi Lanjutan (.env)
+
+Buat file `.env` di folder utama aplikasi untuk mengaktifkan fitur tambahan:
+
+### 1. Penyimpanan S3 (idrive e2, AWS, dll)
+Dengan ini, file akan tersimpan di S3 Storage eksternal (menghemat *storage* lokal) tetapi tautan *(link)* hasil *upload* tetap tidak berubah. Sistem juga otomatis membersihkan S3 dari file berusia > 1 jam.
+```env
+S3_ENDPOINT=https://s3.ap-northeast-1.idrivee2.com
+S3_REGION=ap-northeast-1
+S3_ACCESS_KEY_ID=contoh_access_key
+S3_SECRET_ACCESS_KEY=contoh_secret_key
+S3_BUCKET_NAME=nama_bucket_kamu
+```
+
+### 2. IP Kebal Anti-Spam (*Whitelist*)
+Aplikasi dibekali anti-spam ketat: maksimal **30 request per menit**, jika melanggar IP akan diblokir dari unggahan selama **10 menit**. 
+Untuk mengecualikan IP tertentu (misal IP admin) dari limit ini, daftarkan di sini (pisahkan dengan koma):
+```env
+WHITELISTED_IPS=1.2.3.4, 127.0.0.1
+```
 
 ## Rute
 

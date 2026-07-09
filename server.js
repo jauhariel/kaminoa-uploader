@@ -1,7 +1,9 @@
+import 'dotenv/config';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Fastify from 'fastify';
 import fastifyMultipart from '@fastify/multipart';
+import fastifyRateLimit from '@fastify/rate-limit';
 import fastifyStatic from '@fastify/static';
 import fastifyView from '@fastify/view';
 import ejs from 'ejs';
@@ -11,7 +13,10 @@ import {
   isMedia,
   UploadError,
   MAX_FILE_SIZE,
+  s3,
+  bucketName,
 } from './lib/storage.js';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Port khas untuk Kaminoa: 5264 = "KAMI" pada keypad telepon (K=5, A=2, M=6, I=4).
@@ -19,6 +24,66 @@ const PORT = process.env.PORT || 5264;
 const HOST = process.env.HOST || '0.0.0.0';
 
 const app = Fastify({ logger: true });
+
+// ---- Error Handling ----
+const ERRORS = {
+  403: { emoji: '🔒', title: 'Akses Ditolak', desc: 'Kamu tidak punya izin untuk membuka direktori ini. Isinya bersifat privat.' },
+  404: { emoji: '🧭', title: 'Halaman Tidak Ditemukan', desc: 'Halaman yang kamu cari tidak ada atau mungkin sudah dipindahkan.' },
+  413: { emoji: '📦', title: 'File Terlalu Besar', desc: 'Ukuran file melebihi batas maksimal 50MB. Silakan pilih file yang lebih kecil.' },
+  429: { emoji: '🛑', title: 'Terlalu Banyak Permintaan', desc: 'Sistem mendeteksi aktivitas unggahan yang tidak wajar. Akses kamu ditangguhkan sementara waktu.' },
+  500: { emoji: '⚙️', title: 'Kesalahan Server', desc: 'Terjadi kesalahan di sisi server. Coba lagi beberapa saat lagi.' },
+};
+
+function renderError(reply, code) {
+  const c = ERRORS[code] ? code : 404;
+  return reply.code(c).view('error', { code: c, ...ERRORS[c] });
+}
+
+const bannedIPs = new Map();
+
+// Daftar IP yang kebal dari limitasi (Admin/Trusted API)
+const whitelisted = (process.env.WHITELISTED_IPS || '127.0.0.1').split(',').map(ip => ip.trim());
+const ALLOW_LIST = new Set(whitelisted);
+
+// Hook anti-spam: berjalan sebelum rate-limit
+app.addHook('onRequest', async (req, reply) => {
+  // Hanya blokir akses unggahan
+  if (req.method === 'POST') {
+    const ip = req.headers['x-forwarded-for'] || req.ip;
+    
+    // Bypass limit untuk IP terpercaya
+    if (ALLOW_LIST.has(ip)) return;
+    
+    const banExpire = bannedIPs.get(ip);
+    
+    if (banExpire) {
+      if (Date.now() < banExpire) {
+        if (req.url.startsWith('/api')) {
+          return reply.code(429).send({ success: false, error: 'Sistem mendeteksi spam. Kamu diblokir selama 10 menit.' });
+        }
+        ERRORS[429].desc = 'Sistem mendeteksi spam. Kamu diblokir dari mengunggah file selama 10 menit.';
+        return renderError(reply, 429);
+      } else {
+        bannedIPs.delete(ip);
+      }
+    }
+  }
+});
+
+// Batasi akses: 30 request per 1 menit untuk tiap IP
+await app.register(fastifyRateLimit, {
+  max: 30,
+  timeWindow: '1 minute',
+  allowList: (req) => {
+    const ip = req.headers['x-forwarded-for'] || req.ip;
+    return ALLOW_LIST.has(ip);
+  },
+  keyGenerator: (req) => req.headers['x-forwarded-for'] || req.ip,
+  onExceeded: (req, key) => {
+    // Saat melebihi batas, blokir IP ini selama 10 menit (600000 ms)
+    bannedIPs.set(key, Date.now() + 10 * 60 * 1000);
+  }
+});
 
 await app.register(fastifyMultipart, {
   // throwFileSizeLimit: false → file yang melewati batas ditandai `truncated`
@@ -33,23 +98,52 @@ await app.register(fastifyView, {
   viewExt: 'ejs',
 });
 
-// Serve file hasil unggahan di /uploads/...
-await app.register(fastifyStatic, {
-  root: path.join(__dirname, 'uploads'),
-  prefix: '/uploads/',
-  index: false,
-  list: false,
-  // File media (gambar/video) boleh tampil inline di browser; selain itu paksa
-  // download. Ini mencegah HTML/SVG di-render di origin kita (phishing/XSS) dan
-  // memastikan file seperti .html benar-benar ter-download, bukan jadi hosting.
-  setHeaders(res, filePath) {
-    const ext = path.extname(filePath).slice(1).toLowerCase();
-    if (!isMedia(ext)) {
-      res.setHeader('Content-Disposition', 'attachment');
-      res.setHeader('X-Content-Type-Options', 'nosniff');
+if (s3) {
+  // Serve dari S3
+  app.get('/uploads/temp/:filename', async (req, reply) => {
+    const { filename } = req.params;
+    const key = `uploads/temp/${filename}`;
+    
+    try {
+      const data = await s3.send(new GetObjectCommand({ Bucket: bucketName, Key: key }));
+      
+      const ext = path.extname(filename).slice(1).toLowerCase();
+      if (!isMedia(ext)) {
+        reply.header('Content-Disposition', 'attachment');
+        reply.header('X-Content-Type-Options', 'nosniff');
+      }
+      
+      if (data.ContentType) reply.header('Content-Type', data.ContentType);
+      if (data.ContentLength) reply.header('Content-Length', data.ContentLength);
+      
+      return reply.send(data.Body);
+    } catch (err) {
+      if (err.name === 'NoSuchKey' || err.name === 'NotFound' || err.$metadata?.httpStatusCode === 404) {
+        return renderError(reply, 404);
+      }
+      req.log.error(err);
+      return renderError(reply, 500);
     }
-  },
-});
+  });
+} else {
+  // Serve file hasil unggahan di /uploads/...
+  await app.register(fastifyStatic, {
+    root: path.join(__dirname, 'uploads'),
+    prefix: '/uploads/',
+    index: false,
+    list: false,
+    // File media (gambar/video) boleh tampil inline di browser; selain itu paksa
+    // download. Ini mencegah HTML/SVG di-render di origin kita (phishing/XSS) dan
+    // memastikan file seperti .html benar-benar ter-download, bukan jadi hosting.
+    setHeaders(res, filePath) {
+      const ext = path.extname(filePath).slice(1).toLowerCase();
+      if (!isMedia(ext)) {
+        res.setHeader('Content-Disposition', 'attachment');
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+      }
+    },
+  });
+}
 
 // Susun base URL absolut dari request (pengganti dirname(SCRIPT_NAME) di PHP).
 function baseUrl(req) {
@@ -155,18 +249,6 @@ app.get('/sitemap.xml', async (req, reply) => {
 
 // ---- Halaman error ----
 
-const ERRORS = {
-  403: { emoji: '🔒', title: 'Akses Ditolak', desc: 'Kamu tidak punya izin untuk membuka direktori ini. Isinya bersifat privat.' },
-  404: { emoji: '🧭', title: 'Halaman Tidak Ditemukan', desc: 'Halaman yang kamu cari tidak ada atau mungkin sudah dipindahkan.' },
-  413: { emoji: '📦', title: 'File Terlalu Besar', desc: 'Ukuran file melebihi batas maksimal 50MB. Silakan pilih file yang lebih kecil.' },
-  500: { emoji: '⚙️', title: 'Kesalahan Server', desc: 'Terjadi kesalahan di sisi server. Coba lagi beberapa saat lagi.' },
-};
-
-function renderError(reply, code) {
-  const c = ERRORS[code] ? code : 404;
-  return reply.code(c).view('error', { code: c, ...ERRORS[c] });
-}
-
 app.get('/error', async (req, reply) => {
   const code = parseInt(req.query.code, 10) || 404;
   return renderError(reply, code);
@@ -182,9 +264,13 @@ app.setErrorHandler(async (err, req, reply) => {
   const code = tooBig ? 413 : err.statusCode || 500;
   // Request ke API balas JSON, selain itu balas halaman HTML.
   if (req.url.startsWith('/api')) {
+    let errorMessage = 'Terjadi kesalahan server.';
+    if (tooBig) errorMessage = 'Ukuran file terlalu besar. Maksimal 50MB.';
+    if (code === 429) errorMessage = 'Terlalu banyak permintaan unggahan. Coba lagi nanti.';
+    
     return reply.code(code).send({
       success: false,
-      error: tooBig ? 'Ukuran file terlalu besar. Maksimal 50MB.' : 'Terjadi kesalahan server.',
+      error: errorMessage,
     });
   }
   return renderError(reply, ERRORS[code] ? code : 500);
