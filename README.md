@@ -51,11 +51,13 @@ WHITELISTED_IPS=1.2.3.4, 127.0.0.1
 `POST /api` dengan `Content-Type: multipart/form-data`:
 
 - `file` — file yang diunggah (wajib, maks. 50MB)
+- `uploadType` — `temporary` (default, hapus 1 jam) atau `permanent` (opsional)
 
-Semua unggahan bersifat sementara dan dihapus otomatis dalam 1 jam.
+Kamu bisa mengunggah file untuk disimpan sementara maupun permanen.
 
 ```bash
 curl -X POST http://localhost:5264/api \
+  -F "uploadType=temporary" \
   -F "file=@/path/ke/file.jpg"
 ```
 

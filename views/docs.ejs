@@ -232,18 +232,21 @@
         <p>Kirim request dengan <code>Content-Type: multipart/form-data</code>.</p>
 
         <h2>Parameter</h2>
-        <p>Semua file bersifat sementara dan dihapus otomatis dalam 1 jam.</p>
+        <p>Kamu bisa memilih untuk mengunggah file secara sementara atau permanen.</p>
         <table>
             <tr><th>Field</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
             <tr><td><code>file</code></td><td>file</td><td>Ya</td><td>File yang ingin diunggah (maks. 50MB).</td></tr>
+            <tr><td><code>uploadType</code></td><td>string</td><td>Tidak</td><td>Gunakan <code>permanent</code> untuk simpan permanen. Default: <code>temporary</code> (1 jam).</td></tr>
         </table>
 
         <h2>Contoh — cURL</h2>
         <pre><code>curl -X POST <%= apiUrl %> \
+  -F "uploadType=temporary" \
   -F "file=@/path/ke/file.jpg"</code></pre>
 
         <h2>Contoh — JavaScript (fetch)</h2>
         <pre><code>const form = new FormData();
+form.append('uploadType', 'temporary'); // Opsional
 form.append('file', fileInput.files[0]);
 
 const res = await fetch('<%= apiUrl %>', {
@@ -259,6 +262,7 @@ console.log(data.url);</code></pre>
 with open('file.jpg', 'rb') as f:
     res = requests.post(
         '<%= apiUrl %>',
+        data={'uploadType': 'temporary'}, # Opsional
         files={'file': f},
     )
 
@@ -268,6 +272,7 @@ print(res.json()['url'])</code></pre>
         <pre><code>import { openAsBlob } from 'node:fs';
 
 const form = new FormData();
+form.append('uploadType', 'temporary');
 form.append('file', await openAsBlob('file.jpg'), 'file.jpg');
 
 const res = await fetch('<%= apiUrl %>', { method: 'POST', body: form });

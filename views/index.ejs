@@ -386,13 +386,17 @@
             cursor: pointer;
             user-select: none;
             position: relative;
+            flex: 1;
         }
         .custom-radio input {
             display: none;
         }
         .custom-radio .radio-btn {
-            display: inline-block;
-            padding: 10px 22px;
+            display: block;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            padding: 10px 10px;
             font-family: 'EB Garamond', serif;
             font-size: 17px;
             font-weight: 600;
@@ -429,7 +433,7 @@
         <div class="upload-options">
             <label class="custom-radio">
                 <input type="radio" name="uploadType" value="temporary" checked>
-                <span class="radio-btn">Sementara (1 Jam)</span>
+                <span class="radio-btn">Sementara</span>
             </label>
             <label class="custom-radio">
                 <input type="radio" name="uploadType" value="permanent">
