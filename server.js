@@ -100,9 +100,10 @@ await app.register(fastifyView, {
 
 if (s3) {
   // Serve dari S3
-  app.get('/uploads/temp/:filename', async (req, reply) => {
-    const { filename } = req.params;
-    const key = `uploads/temp/${filename}`;
+  app.get('/uploads/:type/:filename', async (req, reply) => {
+    const { type, filename } = req.params;
+    if (type !== 'temp' && type !== 'perm') return renderError(reply, 404);
+    const key = `uploads/${type}/${filename}`;
     
     try {
       const data = await s3.send(new GetObjectCommand({ Bucket: bucketName, Key: key }));
@@ -163,12 +164,16 @@ app.post('/', async (req, reply) => {
   let message;
   try {
     const result = await handleUpload(req.parts());
+    const isPerm = result.relative.includes('uploads/perm');
     const downloadAttr = isMedia(result.ext) ? '' : 'download';
+    const note = isPerm 
+      ? "<br><small style='color:#38a169;'>(File ini disimpan permanen)</small><br>"
+      : "<br><small style='color:#e53e3e;'>(File ini akan dihapus otomatis dalam 1 jam)</small><br>";
     message = {
       type: 'success',
       html:
         `<strong>Berhasil!</strong> File ${result.name} telah diunggah.` +
-        " <br><small style='color:#e53e3e;'>(File ini akan dihapus otomatis dalam 1 jam)</small><br>" +
+        " " + note +
         `<a href='/${result.relative}' target='_blank' ${downloadAttr} class='btn-link'>Buka / Download File</a>`,
     };
   } catch (err) {
@@ -189,8 +194,8 @@ async function apiUpload(req, reply) {
       message: 'File berhasil diunggah.',
       filename: result.name,
       url: `${baseUrl(req)}/${result.relative}`,
-      type: 'temporary',
-      expires_in: 3600,
+      type: result.relative.includes('perm') ? 'permanent' : 'temporary',
+      expires_in: result.relative.includes('perm') ? null : 3600,
     });
   } catch (err) {
     const status = err instanceof UploadError ? err.status : 500;
